@@ -21,7 +21,7 @@
     {% endfor %}
     <button class="btn btn-secondary"
             formmethod="GET"
-            formaction="/users/{{feedback.user.username}}/">
+            formaction="/users/{{feedback.username}}">
             Cancel
     </button>
     <button class="btn btn-success"
@@ -30,9 +30,4 @@
             Edit Feedback
     </button>
 </form>
-  <a href="/users/{{feedback.user.username}}/">Cancel</a>
-
-
-
-
 {% endblock %}

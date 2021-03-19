@@ -141,7 +141,7 @@ def edit_feedback(feedback_id):
     if "username" not in session or feedback.username != session['username']:
         raise Unauthorized()
 
-    form = FeedbackForm()
+    form = FeedbackForm(obj=feedback)
 
     if form.validate_on_submit():
         feedback.title = form.title.data
@@ -152,3 +152,18 @@ def edit_feedback(feedback_id):
         return redirect(f"/users/{feedback.username}")
     
     return render_template(f"feedback/edit.html", feedback=feedback, form=form)
+
+
+@app.route('/feedback/<feedback_id>/delete', methods=['POST'])
+def feedback(feedback_id):
+    """Delete user"""
+    
+    feedback = Feedback.query.get(feedback_id)
+
+    if "username" not in session or feedback.username != session['username']:
+        raise Unauthorized()
+
+    db.session.delete(feedback)
+    db.session.commit()
+
+    return redirect(f"/users/{feedback.username}")
