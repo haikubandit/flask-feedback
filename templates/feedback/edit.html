@@ -1,0 +1,38 @@
+{% extends 'base.html'  %}
+
+{% block content %}
+
+<h1 class="display-4">Edit Feedback for {{feedback.user.username}}</h1>
+
+<form>
+    {{form.hidden_tag()}}
+
+    {% for field in form
+        if field.widget.input_type != 'hidden' %}
+    <p>
+        {{ field.label }}
+        {{ field.input }}
+        {{ field(class_="form-control") }}
+
+        {% for error in field.errors %}
+        <span class="form-text text-danger">{{ error }}</span>
+        {% endfor %}
+    </p>
+    {% endfor %}
+    <button class="btn btn-secondary"
+            formmethod="GET"
+            formaction="/users/{{feedback.user.username}}/">
+            Cancel
+    </button>
+    <button class="btn btn-success"
+            formmethod="POST"
+            formaction="/feedback/{{ feedback.id }}/update">
+            Edit Feedback
+    </button>
+</form>
+  <a href="/users/{{feedback.user.username}}/">Cancel</a>
+
+
+
+
+{% endblock %}

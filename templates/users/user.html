@@ -3,26 +3,44 @@
 {% block content %}
 
 <div id="user">
+    <h3 class="display-4">User Info</h3>
     <div class="card">
         <div class="card-body">
             <h3 class="card-title">{{user.full_name}}</h3>
             <p class="card-text">Username: <b>{{user.username}}</b></p>
             <p class="card-text">Email: <b>{{user.email}}</b></p>
-            <a href="#" class="btn btn-primary">Add Feedback</a>
+            <form action="/users/{{user.username}}/delete" method="post">
+                <a href="/users/{{user.username}}/feedback/add" class="btn btn-primary">Add Feedback</a>
+                <button class="btn btn-danger" type="submit"><i class="fas fa-trash"></i> Delete User</button>
+            </form>
         </div>
     </div>
 </div>
 
-<!-- <div id="feedback">
-    <div class="card">
+<div id="feedback">
+    <h3 class="display-4">Feedback</h3>
+    {% for feedback in user.post %}
+    <div class="my-2 card">
         <div class="card-body">
-            <h3 class="card-title">{{user.full_name}}</h3>
-            <p class="card-text">Username: <b>{{user.username}}</b></p>
-            <p class="card-text">Email: <b>{{user.email}}</b></p>
+            <h3 class="card-title">{{feedback.title}}</h3>
+            <p class="card-text">{{feedback.content}}</p>
+            <form>
+                {{form.hidden_tag()}}
+                <button class="btn btn-info"
+                        formmethod="GET"
+                        formaction="/feedback/{{ feedback.id }}/update">
+                        <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button class="btn btn-danger"
+                        formmethod="POST"
+                        formaction="/feedback/{{ feedback.id }}/delete">
+                        <i class="fas fa-trash"></i>
+                </button>
+              </form>
         </div>
     </div>
-</div> -->
-<h1 class="display-3"></h1>
+    {% endfor %}
+</div>
 
 
 
