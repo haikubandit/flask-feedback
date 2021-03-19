@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import connect_db, db, User
-from forms import UserRegisterForm
+from models import connect_db, db, User, Feedback
+from forms import UserRegisterForm, UserLoginForm
 
 
 app = Flask(__name__)
@@ -26,7 +26,12 @@ def root():
 @app.route('/secret')
 def secret_page():
     """Home page root"""
-    return "<h1>You made it!</h1>"
+
+    if 'username' not in session:
+        flash("Please login first!", "danger")
+        return redirect('/')
+
+    return "You made it!"
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -39,12 +44,27 @@ def register_user():
         first_name = form.first_name.data
         last_name = form.last_name.data
 
-        new_user = User.register(username, password)
+        new_user = User.register(username, password, email, first_name, last_name)
         db.session.add(new_user)
         db.session.commit()
-        
-        session['user_id'] = new_user.id
+
+        session['username'] = new_user.username
         flash('Welcome! Successfully Created Your Account!', "success")
         return redirect('/secret')
 
     return render_template('users/register.html', form=form)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_user():
+    form = UserLoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        user = User.authenticate(username, password)
+        
+        if user:
+            session['username'] = user.username
+            return redirect('/secret')
+
+    return render_template('users/login.html', form=form)
