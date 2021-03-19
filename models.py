@@ -51,16 +51,22 @@ class User(db.Model):
         else:
             return False
 
+    @property
+    def full_name(self):
+        """Return full name of user."""
 
-    class Feedback(db.Model):
+        return f"{self.first_name} {self.last_name}"
 
-        __tablename__ = 'posts'
 
-        id = db.Column(db.Integer, primary_key=True)
-        title = db.Column(db.String(100), nullable=False)
-        content = db.Column(db.Text, nullable=False)
-        username = db.Column(db.Text, db.ForeignKey('users.username'))
+class Feedback(db.Model):
 
-        user = db.relationship('User', backref='post')
+    __tablename__ = 'posts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    username = db.Column(db.Text, db.ForeignKey('users.username'))
+
+    user = db.relationship('User', backref='post')
 
 

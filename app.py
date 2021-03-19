@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from models import connect_db, db, User, Feedback
 from forms import UserRegisterForm, UserLoginForm
+from werkzeug.exceptions import Unauthorized
 
 
 app = Flask(__name__)
@@ -34,6 +35,19 @@ def secret_page():
     return "You made it!"
 
 
+@app.route('/users/<username>')
+def user_page(username):
+    """Show user info page"""
+    if 'username' in session and username != session['username']:
+        flash("You don't have access to this user page!", "danger")
+        return redirect('/')
+    if 'username' not in session:
+        flash("Please login first!", "danger")
+        return redirect('/')
+    user = User.query.get_or_404(username)
+    return render_template('users/user.html', user=user)
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
     form = UserRegisterForm()
@@ -50,9 +64,10 @@ def register_user():
 
         session['username'] = new_user.username
         flash('Welcome! Successfully Created Your Account!', "success")
-        return redirect('/secret')
+        return redirect(f"/users/{username}")
 
     return render_template('users/register.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_user():
@@ -65,6 +80,36 @@ def login_user():
         
         if user:
             session['username'] = user.username
-            return redirect('/secret')
+            return redirect(f"/users/{username}")
 
     return render_template('users/login.html', form=form)
+
+
+@app.route('/logout')
+def logout_user():
+    session.pop('username')
+    flash("Goodbye!", "info")
+    return redirect('/')
+
+
+@app.route('/users/<username>/delete', methods=['POST'])
+def delete_user(username):
+    """Delete user"""
+
+    if "username" not in session or username != session['username']:
+        raise Unauthorized()
+
+    user = User.query.get(username)
+    db.session.delete(user)
+    db.session.commit()
+    session.pop("username")
+
+    return redirect("/login")
+
+
+########## Feedback Routes #################
+
+# @app.route('/users/<username>')
+# def user_page(username):
+#     user = User.query.get_or_404(username)
+#     return render_template('users/user.html', user=user)
